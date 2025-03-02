@@ -1,5 +1,5 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-    <Package Language="1033" Manufacturer="DuckDB Foundation" Name="DuckDB ODBC" Scope="perMachine" UpgradeCode="9f5a6af8-f6e2-11ef-a350-e86a6416a6f5" Version="121.1.1.0" InstallerVersion="200" ProductCode="6acfc3d4-7daa-4275-adb5-ede35d41e269">
+    <Package Language="1033" Manufacturer="DuckDB Foundation" Name="DuckDB ODBC (EXPERIMENTAL)" Scope="perMachine" UpgradeCode="9f5a6af8-f6e2-11ef-a350-e86a6416a6f5" Version="121.1.1.0" InstallerVersion="200" ProductCode="6acfc3d4-7daa-4275-adb5-ede35d41e269">
 
         <StandardDirectory Id="ProgramFiles64Folder">
             <Directory Id="INSTALLFOLDER" Name="DuckDB">
