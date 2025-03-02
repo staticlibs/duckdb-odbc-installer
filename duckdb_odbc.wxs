@@ -1,0 +1,83 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+    <Package Language="1033" Manufacturer="DuckDB Foundation" Name="DuckDB ODBC" Scope="perMachine" UpgradeCode="9f5a6af8-f6e2-11ef-a350-e86a6416a6f5" Version="121.1.1.0" InstallerVersion="200" ProductCode="6acfc3d4-7daa-4275-adb5-ede35d41e269">
+
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="DuckDB">
+                <Component Id="comp_duckdb_odbc.dll" Bitness="always64">
+                    <File Id="duckdb_odbc.dll" Name="duckdb_odbc.dll" KeyPath="yes" DiskId="1" Source="dist/duckdb_odbc.dll" />
+                </Component>
+                <Component Id="comp_duckdb_odbc_setup.dll" Bitness="always64">
+                    <File Id="duckdb_odbc_setup.dll" Name="duckdb_odbc_setup.dll" KeyPath="yes" DiskId="1" Source="dist/duckdb_odbc_setup.dll" />
+                </Component>
+                <Component Id="comp_duckdb_odbc_config.exe" Bitness="always64">
+                    <File Id="duckdb_odbc_config.exe" Name="duckdb_odbc_config.exe" KeyPath="yes" DiskId="1" Source="dist/duckdb_odbc_config.exe" />
+                </Component>
+                <Component Id="comp_odbcinst.ini">
+                    <RegistryKey Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\DuckDB Driver" ForceDeleteOnUninstall="yes">
+                        <RegistryValue Type="string" Name="APILevel" Value="1"/>
+                        <RegistryValue Type="string" Name="ConnectFunctions" Value="YYN"/>
+                        <RegistryValue Type="string" Name="Driver" Value="[INSTALLFOLDER]duckdb_odbc.dll" KeyPath="yes"/>
+                        <RegistryValue Type="string" Name="DriverODBCVer" Value="3.0"/>
+                        <RegistryValue Type="string" Name="Setup" Value="[INSTALLFOLDER]duckdb_odbc_setup.dll"/>
+                        <RegistryValue Type="string" Name="SQLLevel" Value="1"/>
+                        <RegistryValue Type="integer" Name="UsageCount" Value="1"/>
+                    </RegistryKey>
+                </Component>
+                <Component Id="comp_odbc_drivers">
+                    <RegistryValue Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers" Type="string" Name="DuckDB Driver" Value="Installed" KeyPath="yes"/>
+                </Component>
+                <Component Id="comp_odbc.ini">
+                    <RegistryKey Root="HKLM" Key="SOFTWARE\ODBC\ODBC.INI\DuckDB" ForceDeleteOnUninstall="yes">
+                        <RegistryValue Type="string" Name="database" Value=":memory:"/>
+                        <RegistryValue Type="string" Name="Driver" Value="[INSTALLFOLDER]duckdb_odbc.dll" KeyPath="yes"/>
+                    </RegistryKey>
+                </Component>
+                <Component Id="comp_odbc_data_sources">
+                    <RegistryValue Root="HKLM" Key="SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources" Type="string" Name="DuckDB" Value="DuckDB Driver" KeyPath="yes"/>
+                </Component>
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="PersonalFolder">
+            <Directory Id="Power BI Desktop" Name="Power BI Desktop">
+                <Directory Id="Custom Connectors" Name="Custom Connectors">
+                    <Component Id="comp_duckdb_power_query_connector.mez" Bitness="always64">
+                        <File Id="duckdb_power_query_connector.mez" Name="duckdb-power-query-connector.mez" KeyPath="yes" DiskId="1" Source="dist/duckdb-power-query-connector.mez" />
+                    </Component>
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+        
+        <Feature Id="odbc" AllowAbsent="no" AllowAdvertise="no" ConfigurableDirectory="INSTALLFOLDER" Display="expand" Level="1" Title="ODBC Driver" Description="ODBC shared library and configuration utility.">
+            <ComponentRef Id="comp_duckdb_odbc.dll" />
+            <ComponentRef Id="comp_duckdb_odbc_setup.dll" />
+            <ComponentRef Id="comp_duckdb_odbc_config.exe" />
+            <ComponentRef Id="comp_odbcinst.ini" />
+            <ComponentRef Id="comp_odbc_drivers" />
+            <ComponentRef Id="comp_odbc.ini" />
+            <ComponentRef Id="comp_odbc_data_sources" />
+        </Feature>
+        <Feature Id="powerbi" AllowAbsent="yes" AllowAdvertise="no" Display="expand" Level="2" Title="Power Query Connector" Description="Power Query Connector by MotherDuck. Installed into 'Documents\Power BI Desktop\Custom Connectors'.">
+            <ComponentRef Id="comp_duckdb_power_query_connector.mez" />
+        </Feature>
+
+        <CustomAction Id="postinstall" Return="asyncNoWait" Impersonate="yes" ExeCommand="--postinstall" FileRef="duckdb_odbc_config.exe" />
+        <UI>
+            <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="postinstall" Condition="(NOT REMOVE) AND (WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1)" />
+        </UI>
+
+        <Icon Id="icon.ico" SourceFile="resources\icon.ico" />
+        <MajorUpgrade AllowDowngrades="no" AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." IgnoreRemoveFailure="no" />
+        <Media Id="1" Cabinet="Application.cab" EmbedCab="yes" />
+        <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+        <Property Id="ARPHELPLINK" Value="https://duckdb.org/docs/clients/odbc/windows" />
+        <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Open ODBC Configuration Tool" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+        <ui:WixUI Id="WixUI_FeatureTree"  InstallDirectory="INSTALLFOLDER" />
+        <WixVariable Id="WixUILicenseRtf" Value="resources\LICENSE.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="resources\top.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="resources\greetings.bmp" />
+
+    </Package>
+</Wix>

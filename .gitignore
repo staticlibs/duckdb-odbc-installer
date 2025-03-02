@@ -1,0 +1,4 @@
+/dist
+/.wix
+*.wixpdb
+*.msi
